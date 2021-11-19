@@ -21,35 +21,18 @@ const resolvers = {
       const user = await User.findOne({ email });
 
       if (!user) {
-        throw new AuthenticationError('No user found with this email address');
+        throw new AuthenticationError('Login Error');
       }
 
       const correctPw = await user.isCorrectPassword(password);
 
       if (!correctPw) {
-        throw new AuthenticationError('Incorrect credentials');
+        throw new AuthenticationError('Login Error');
       }
 
       const token = signToken(user);
 
       return { token, user };
-    },
-
-    saveBook: async (parent, { bookData }, context) => {
-      if (context.user) {
-        const updatedUser = await User.findByIdAndUpdate(
-          { _id: context.user._id },
-          {
-            $push: { savedBooks: bookData }
-          },
-          {
-            new: true
-          }
-
-        );
-        return updatedUser;
-      }
-      throw new AuthenticationError('Authentication Error')
     },
 
     saveBook: async (parent, { bookData }, context) => {
@@ -68,7 +51,7 @@ const resolvers = {
 
     removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
-        const book = await Book.findOneAndDelete({ _id: BookId });
+        const book = await Book.findOneAndDelete({ _id: bookId });
 
         await User.findOneAndUpdate(
           { _id: context.user._id },
@@ -81,3 +64,5 @@ const resolvers = {
     },
   },
 };
+
+module.exports = resolvers;
